@@ -448,8 +448,8 @@ void Pulse::Face::updateBox(const Rect& a) {
     interpolate(box, a, box, min(1., d));
 
     // update EVM box
-    Point c = box.tl() + Point(box.size().width * .5, box.size().height * .5);
-    Point r(box.width * .275, box.height * .425);
+    Point c = box.tl() + Point(box.size().width * .5, box.size().height * .20);
+    Point r(box.width * .250, box.height*  .100);
     evm.box = Rect(c - r, c + r);
 }
 
