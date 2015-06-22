@@ -11,7 +11,7 @@ using namespace cv;
 
 Window::Window(Pulse& pulse) :
     pulse(pulse),
-    WINDOW_NAME("EVM"),
+    WINDOW_NAME("EVM - Heart Monitor"),
     TRACKBAR_MAGNIFY_NAME("Magnify      "),
     TRACKBAR_ALPHA_NAME  ("Amplification")
 {

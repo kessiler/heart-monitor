@@ -31,7 +31,7 @@ int main(int argc, const char** argv) {
         cout << "FPS: " << FPS << endl;
         pulse.fps = FPS;
     }
-    pulse.load("res/lbpcascade_frontalface.xml");
+    pulse.load("./cascades/haarcascade_frontalface_alt.xml");
     pulse.start(WIDTH, HEIGHT);
 
     Window window(pulse);

@@ -83,7 +83,7 @@ private:
     double lastBpmTimestamp;
     Size minFaceSize;
     CascadeClassifier classifier;
-    Mat gray;
+    Mat frameGray;
     vector<Rect> boxes;
     Mat1d powerSpectrum;
     int nextFaceId;

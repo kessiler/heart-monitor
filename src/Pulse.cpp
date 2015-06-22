@@ -46,8 +46,9 @@ void Pulse::onFrame(Mat& frame) {
 
         PROFILE_START_DESC("detect faces");
         // detect faces
-        cvtColor(frame, gray, CV_RGB2GRAY);
-        classifier.detectMultiScale(frame, boxes, 1.1, 3, 0, minFaceSize);
+        cvtColor(frame, frameGray, CV_RGB2GRAY);
+		equalizeHist(frameGray, frameGray);
+        classifier.detectMultiScale(frameGray, boxes, 1.1, 3, 0, minFaceSize);
         PROFILE_STOP();
 
         // iterate through faces and boxes
