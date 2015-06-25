@@ -147,7 +147,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     PROFILE_SCOPED();
 
     // only show magnified face when there is pulse
-    Mat roi = !evm.magnify || evm.magnify && face.existsPulse ?
+    Mat roi = !evm.magnify || (evm.magnify && face.existsPulse) ?
         frame(face.evm.box) : face.evm.out;
 
     // if magnification is on
@@ -376,7 +376,7 @@ void Pulse::bpm(Face& face) {
 void Pulse::draw(Mat& frame, const Face& face, const Rect& box) {
     PROFILE_SCOPED();
 
-    rectangle(frame, box, BLUE);
+    //rectangle(frame, box, BLUE);
     rectangle(frame, face.box, BLUE, 2);
     rectangle(frame, face.evm.box, GREEN);
 
