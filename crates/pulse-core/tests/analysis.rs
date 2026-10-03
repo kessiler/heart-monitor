@@ -210,3 +210,46 @@ fn rejects_bursty_samples_even_when_average_cadence_exceeds_eight_fps() {
     assert!(result.bpm.is_none(), "aliased estimate: {:?}", result.bpm);
     assert_eq!(result.quality, 0.0);
 }
+
+#[test]
+fn high_cadence_out_of_band_variation_does_not_alias_into_pulse_band() {
+    let mut analyzer = PulseAnalyzer::new();
+    for n in 0..=2880 {
+        let time = n as f64 / 240.0;
+        assert!(analyzer.push(time, 128.0 + 2.0 * (TAU * 118.8 * time).sin()));
+    }
+    let result = analyzer.analyze();
+    assert!(
+        result.bpm.is_none(),
+        "118.8 Hz sampled at 240 Hz must not produce {:?} BPM (quality {})",
+        result.bpm,
+        result.quality
+    );
+}
+
+#[test]
+fn high_cadence_real_pulses_survive_uniform_and_jittered_timestamps() {
+    for rate in [120.0, 240.0] {
+        for bpm in [48.0, 72.0, 120.0, 174.0] {
+            for jitter in [false, true] {
+                let result = pulse(rate, bpm, 12.0, jitter, false).analyze();
+                let estimate = result.bpm.expect("in-band pulse should remain measurable");
+                assert!(
+                    (estimate - bpm).abs() < 1.0,
+                    "{rate} Hz, jitter {jitter}: expected {bpm} BPM, got {estimate} BPM"
+                );
+                assert!(result.quality > 0.7);
+                assert!(result.duration <= 12.0);
+                assert!(result.signal.len() <= 4096);
+            }
+        }
+    }
+}
+
+#[test]
+fn high_cadence_resampling_stays_bounded_by_the_stored_window() {
+    let result = pulse(480.0, 72.0, 20.0, false, false).analyze();
+    assert!(result.signal.len() <= 4096);
+    assert!((result.bpm.unwrap() - 72.0).abs() < 1.0);
+    assert!(result.duration >= 8.0 && result.duration <= 12.0);
+}

@@ -3,7 +3,7 @@
 Um TCC de 2015, publicado em 2016, revisitado com Rust e WebAssembly.
 A demonstração extrai um sinal experimental de pulso das pequenas variações de cor de uma região do vídeo. Câmera e vídeos locais são processados no próprio dispositivo.
 
-**[Experimentar / Try it](https://kessiler.github.io/heart-monitor/)** · **[Artigo original](https://doi.org/10.18674/exacta.v9i1.1666)** · **[Releases desktop](https://github.com/kessiler/heart-monitor/releases)**
+**[Experimentar / Try it](https://kessiler.github.io/heart-monitor/)** · **[Artigo original](https://www.researchgate.net/publication/303794403_DETECCAO_EM_TEMPO_REAL_DA_FREQUENCIA_CARDIACA_DE_PESSOAS_POR_MEIO_DA_ANALISE_DE_VARIACOES_TEMPORAIS_EM_VIDEOS)** · **[Releases desktop](https://github.com/kessiler/heart-monitor/releases)**
 
 ## O que está aqui
 
@@ -27,7 +27,9 @@ npm run build:wasm
 npm run dev
 ```
 
-Abra `http://127.0.0.1:5173`. Para a câmera, use localhost ou HTTPS, permita o acesso, ilumine o rosto de forma uniforme e coloque a região de análise na testa. Clique para reposicionar, arraste para dimensionar ou use as setas com a prévia focada. Trocar a região reinicia a análise; parar desliga a câmera.
+Abra `http://127.0.0.1:5173`. Para a câmera, use localhost ou HTTPS, permita o acesso, ilumine o rosto de forma uniforme e coloque a região de análise na testa. Clique para reposicionar, arraste para dimensionar ou use as setas com a prévia focada; `+`/`−` ajustam o tamanho pelo teclado. Trocar a região reinicia a análise; parar desliga a câmera.
+
+As etapas interativas explicam como a região do vídeo fornece amostras de cor e um sinal periódico. As animações são ilustrativas e podem ser pausadas; respeitam a preferência de movimento reduzido do sistema.
 
 ```sh
 cargo test --workspace --locked
