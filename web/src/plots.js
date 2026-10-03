@@ -1,12 +1,12 @@
 import { getLocale, t } from './i18n.js';
 
 const colors = {
-  background: '#f8fbff',
-  grid: '#e1e8f2',
-  axis: '#69788b',
-  signal: '#2049c8',
-  fill: 'rgba(32, 73, 200, 0.08)',
-  peak: '#cf3151',
+  background: '#ffffff',
+  grid: '#e7ecef',
+  axis: '#65717d',
+  signal: '#176b72',
+  fill: 'rgba(23, 107, 114, 0.08)',
+  peak: '#52606d',
 };
 const sizes = new WeakMap();
 
@@ -82,7 +82,7 @@ function axes(plot, xTicks, yTicks, xLabel, yLabel) {
     line(context, left, tick.position, right, tick.position);
     context.fillText(tick.label, left - 9, tick.position);
   }
-  context.strokeStyle = '#bfccdf';
+  context.strokeStyle = '#c8d1d9';
   line(context, left, top, left, bottom);
   line(context, left, bottom, right, bottom);
   context.textAlign = 'center';
