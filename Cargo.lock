@@ -31,11 +31,11 @@ dependencies = [
 
 [[package]]
 name = "pulse-core"
-version = "2.1.1"
+version = "2.1.2"
 
 [[package]]
 name = "pulse-wasm"
-version = "2.1.1"
+version = "2.1.2"
 dependencies = [
  "pulse-core",
  "wasm-bindgen",
