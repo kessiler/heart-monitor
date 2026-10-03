@@ -1,0 +1,26 @@
+{
+  "name": "heart-monitor",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "build:wasm": "wasm-pack build crates/pulse-wasm --target web --out-dir ../../web/pkg --release",
+    "build:web": "vite build",
+    "build": "npm run build:wasm && npm run build:web",
+    "dev": "vite --host 127.0.0.1",
+    "preview": "vite preview --host 127.0.0.1",
+    "test:web": "node --test web/tests/*.test.mjs",
+    "test:e2e": "playwright test",
+    "tauri": "tauri",
+    "desktop:dev": "npm run build:wasm && tauri dev",
+    "desktop:build": "tauri build"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@tauri-apps/cli": "^2.9.0",
+    "vite": "^8.0.0",
+    "wasm-pack": "0.15.0"
+  }
+}
