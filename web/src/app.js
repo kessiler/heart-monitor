@@ -88,16 +88,16 @@ function clearProcessing() {
   drawSignal(element('signal-chart'), []);
   drawSpectrum(element('spectrum-chart'), [], 0);
   const output = amplified.getContext('2d');
-  output.fillStyle = '#edf2fa'; output.fillRect(0, 0, amplified.width, amplified.height);
+  output.fillStyle = '#f3f5f7'; output.fillRect(0, 0, amplified.width, amplified.height);
 }
 function idleFrame() {
   preview.width = 640; preview.height = 480;
-  context.fillStyle = '#edf2fa'; context.fillRect(0, 0, 640, 480);
-  context.strokeStyle = '#d5dfef'; context.lineWidth = 1;
+  context.fillStyle = '#f3f5f7'; context.fillRect(0, 0, 640, 480);
+  context.strokeStyle = '#e1e6eb'; context.lineWidth = 1;
   for (let x = 0; x < 640; x += 40) { context.beginPath(); context.moveTo(x, 0); context.lineTo(x, 480); context.stroke(); }
   for (let y = 0; y < 480; y += 40) { context.beginPath(); context.moveTo(0, y); context.lineTo(640, y); context.stroke(); }
-  context.strokeStyle = '#8ca6d5'; context.lineWidth = 3;
-  context.beginPath(); context.ellipse(320, 240, 92, 125, 0, 0, Math.PI * 2); context.stroke();
+  context.strokeStyle = '#c8d1d9'; context.lineWidth = 1;
+  context.strokeRect(80.5, 60.5, 480, 360);
   drawRoi();
 }
 function stop({ announce = true } = {}) {
