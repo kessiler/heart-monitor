@@ -1,0 +1,26 @@
+[package]
+name = "heart-monitor-desktop"
+version = "2.0.0"
+description = "Local, experimental video pulse demonstration"
+authors = ["Kessiler Rodrigues"]
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/kessiler/heart-monitor"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "=2.7.1", features = [] }
+
+[dependencies]
+tauri = { version = "=2.12.1", features = [] }
+tauri-plugin-opener = "=2.7.0"
+pulse-core = { path = "../crates/pulse-core" }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+webkit2gtk = { version = "=2.0.2", features = ["v2_40"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = "s"
+strip = true

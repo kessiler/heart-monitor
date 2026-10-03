@@ -1,0 +1,105 @@
+name: Draft desktop release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+  release-policy:
+    name: Check the release tag and Git Flow branch
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out the tagged source and branch history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+      - name: Verify the tag matches every version
+        run: node scripts/check-release.mjs
+      - name: Require a commit released through master
+        run: git merge-base --is-ancestor HEAD origin/master
+  installers:
+    name: ${{ matrix.name }} installer
+    needs: [checks, release-policy]
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS Apple Silicon
+            platform: macos-latest
+            target: aarch64-apple-darwin
+            args: --locked --target aarch64-apple-darwin
+          - name: macOS Intel
+            platform: macos-latest
+            target: x86_64-apple-darwin
+            args: --locked --target x86_64-apple-darwin
+          - name: Windows x64
+            platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            args: --locked --target x86_64-pc-windows-msvc
+          - name: Linux x64
+            platform: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            args: --locked --target x86_64-unknown-linux-gnu
+    runs-on: ${{ matrix.platform }}
+    timeout-minutes: 45
+    env:
+      BASE_PATH: ./
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install Rust targets
+        uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # master
+        with:
+          toolchain: '1.99.0'
+          targets: wasm32-unknown-unknown,${{ matrix.target }}
+      - name: Install Linux desktop build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+      - name: Install locked JavaScript dependencies
+        run: npm ci
+      - name: Build installers and attach them to a draft release
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # action-v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Heart Monitor ${{ github.ref_name }}'
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
+          releaseBody: |
+            Demonstração experimental em Rust, com interface em português e inglês. Processamento de vídeo local. Não é um dispositivo médico.
+
+            Experimental Rust demonstration with Portuguese and English UI. Video processing stays on your device. Not a medical device.
+
+            Os instaladores ainda não têm assinatura de distribuição/notarização. Revise e teste os pacotes e a permissão de câmera antes de publicar este rascunho.
+
+            Installers have no distribution signing/notarization. Review and test the packages and camera permission before publishing this draft.
+      - name: Test native reference-opening policy
+        run: cargo test --manifest-path src-tauri/Cargo.toml --locked

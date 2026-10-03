@@ -2,3 +2,12 @@ build
 .idea
 bin
 .DS_Store
+.tools/
+.artifacts/
+node_modules/
+target/
+dist/
+web/pkg/
+playwright-report/
+test-results/
+.DS_Store
