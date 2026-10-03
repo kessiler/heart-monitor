@@ -6,6 +6,7 @@ import { drawSignal, drawSpectrum } from './plots.js';
 import { SourceSession } from './session.js';
 import { DEFAULT_ROI, DEMO_ROI, normalizeRoi, pixelRoi, meanGreen } from './sampling.js';
 import { drawDemo } from './demo.js';
+import { initPresentation } from './presentation.js';
 
 const element = id => document.getElementById(id);
 const video = element('video');
@@ -25,6 +26,7 @@ let videoFrame = 0;
 let lastDecodedFrame = -1;
 let lastFrameWall = 0;
 let stalled = false;
+let playbackStarted = false;
 let sourceStart = 0;
 let lastSample = -1;
 let lastEstimate = -1;
@@ -32,25 +34,35 @@ let lastResult = [0, 0, 0, 0];
 let statusKey = 'runtime.loading';
 let statusValues = {};
 let ready = false;
+let presentation;
+
+function updatePresentation() {
+  presentation?.setExperimentState({ source, active: session.active, status: statusKey });
+}
 
 function status(key, values = {}) {
   statusKey = key;
   statusValues = values;
   element('status').removeAttribute('data-i18n');
-  element('status').textContent = t(key, values);
+  const message = t(key, values);
+  if (element('status').textContent !== message) element('status').textContent = message;
+  element('status').classList.toggle('error', /Denied|Missing|Busy|Unavailable|Error/.test(key));
+  updatePresentation();
 }
 function controls() {
-  element('start-camera').disabled = !ready;
+  element('start-camera').disabled = !ready || (source === 'Camera' && session.active && !playbackStarted);
   element('start-demo').disabled = !ready;
   element('video-file').disabled = !ready;
   element('stop').disabled = !session.active;
-  element('roi-reset').disabled = !session.active;
+  element('roi-reset').disabled = !playbackStarted;
+  preview.setAttribute('aria-disabled', String(!playbackStarted));
 }
 function sourceText() {
   element('source-label').removeAttribute('data-i18n');
   element('source-label').textContent = source ? t(`runtime.source${source}`) : t('source.none');
   preview.dataset.source = source;
   element('capture-placeholder').hidden = Boolean(source);
+  updatePresentation();
 }
 function results() {
   const [bpm, quality, duration] = lastResult;
@@ -59,7 +71,9 @@ function results() {
   element('quality').textContent = `${Math.round(quality * 100)}%`;
   element('progress').value = Math.min(1, duration / 12);
   if (session.active && !stalled) {
-    if (duration < 8) status('runtime.warming', { seconds: Math.ceil(8 - duration) });
+    if (!playbackStarted) status(source === 'Camera' ? 'runtime.cameraRequest' : 'runtime.videoLoading');
+    else if (drag) status('runtime.selecting');
+    else if (duration < 8) status('runtime.warming', { seconds: Math.ceil(8 - duration) });
     else status(bpm > 0 ? 'runtime.tracking' : 'runtime.weak');
   }
 }
@@ -96,6 +110,8 @@ function stop({ announce = true } = {}) {
   video.load();
   source = '';
   drag = null;
+  playbackStarted = false;
+  stalled = false;
   clearProcessing();
   controls(); sourceText(); idleFrame();
   if (announce) status('runtime.stopped');
@@ -110,7 +126,7 @@ function begin(kind) {
   lastFrameWall = performance.now();
   stalled = false;
   controls(); sourceText();
-  status('runtime.warming', { seconds: 8 });
+  status(kind === 'Camera' ? 'runtime.cameraRequest' : kind === 'Video' ? 'runtime.videoLoading' : 'runtime.warming', { seconds: 8 });
   return token;
 }
 function cameraError(error) {
@@ -134,7 +150,9 @@ async function startCamera() {
     }
     video.srcObject = stream;
     await video.play();
-    if (session.current(token)) loop(token);
+    if (session.current(token)) {
+      playbackStarted = true; lastFrameWall = performance.now(); controls(); loop(token);
+    }
   } catch (error) {
     if (session.current(token)) { stop({ announce: false }); status(cameraError(error)); }
   }
@@ -142,6 +160,7 @@ async function startCamera() {
 function startDemo() {
   const token = begin('Demo');
   preview.width = 640; preview.height = 480;
+  playbackStarted = true; controls();
   loop(token);
 }
 async function startVideo(file) {
@@ -152,7 +171,9 @@ async function startVideo(file) {
   video.src = url;
   try {
     await video.play();
-    if (session.current(token)) loop(token);
+    if (session.current(token)) {
+      playbackStarted = true; lastFrameWall = performance.now(); controls(); loop(token);
+    }
   } catch {
     if (session.current(token)) { stop({ announce: false }); status('runtime.videoError'); }
   }
@@ -185,15 +206,18 @@ function renderFrame(token, seconds) {
     if (!drag && (lastSample < 0 || seconds - lastSample >= 1 / 35 || seconds < lastSample)) {
       const box = pixelRoi(roi, preview.width, preview.height);
       // Read pixels before drawing the selection overlay; visual gain never changes measurement.
-      roiCanvas.width = Math.min(96, box.width);
-      roiCanvas.height = Math.max(1, Math.round(box.height * roiCanvas.width / box.width));
+      const sampleWidth = Math.min(96, box.width);
+      const sampleHeight = Math.max(1, Math.round(box.height * sampleWidth / box.width));
+      if (roiCanvas.width !== sampleWidth) roiCanvas.width = sampleWidth;
+      if (roiCanvas.height !== sampleHeight) roiCanvas.height = sampleHeight;
       roiContext.drawImage(preview, box.x, box.y, box.width, box.height, 0, 0, roiCanvas.width, roiCanvas.height);
       const pixels = roiContext.getImageData(0, 0, roiCanvas.width, roiCanvas.height);
       const green = meanGreen(pixels.data);
       if (green !== null) analyzer.push(seconds, green);
       const enhanced = magnifier.process(pixels.data, pixels.width, pixels.height, seconds, Number(element('gain').value));
       if (enhanced.length === pixels.data.length) {
-        amplified.width = pixels.width; amplified.height = pixels.height;
+        if (amplified.width !== pixels.width) amplified.width = pixels.width;
+        if (amplified.height !== pixels.height) amplified.height = pixels.height;
         amplified.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(enhanced), pixels.width, pixels.height), 0, 0);
       }
       lastSample = seconds;
@@ -238,31 +262,47 @@ function pointerPoint(event) {
   return { x: (event.clientX - rect.left) / rect.width, y: (event.clientY - rect.top) / rect.height };
 }
 preview.addEventListener('pointerdown', event => {
-  if (!session.active) return;
+  if (!playbackStarted || drag || event.button !== 0 || !event.isPrimary) return;
   preview.setPointerCapture(event.pointerId);
-  drag = pointerPoint(event);
+  drag = { pointerId: event.pointerId, start: pointerPoint(event), previous: { ...roi } };
+  clearProcessing();
 });
 preview.addEventListener('pointermove', event => {
-  if (drag) roi = normalizeRoi(drag, pointerPoint(event));
+  if (drag?.pointerId === event.pointerId) roi = normalizeRoi(drag.start, pointerPoint(event));
 });
 function finishRoi(event) {
-  if (!drag) return;
-  const selection = event.type === 'pointercancel' ? null : normalizeRoi(drag, pointerPoint(event));
+  if (!drag || drag.pointerId !== event.pointerId) return;
+  const previous = drag.previous;
+  const cancelled = event.type === 'pointercancel' || event.type === 'lostpointercapture';
+  const selection = cancelled ? null : normalizeRoi(drag.start, pointerPoint(event));
   if (selection && selection.width >= .03 && selection.height >= .03) roi = selection;
   else if (selection) {
     const center = pointerPoint(event);
-    roi = { ...roi, x: Math.min(1 - roi.width, Math.max(0, center.x - roi.width / 2)),
-      y: Math.min(1 - roi.height, Math.max(0, center.y - roi.height / 2)) };
-  }
+    roi = { ...previous, x: Math.min(1 - previous.width, Math.max(0, center.x - previous.width / 2)),
+      y: Math.min(1 - previous.height, Math.max(0, center.y - previous.height / 2)) };
+  } else roi = previous;
   drag = null;
-  if (roi.width < .03 || roi.height < .03) roi = { ...(source === 'Demo' ? DEMO_ROI : DEFAULT_ROI) };
   clearProcessing();
 }
 preview.addEventListener('pointerup', finishRoi);
 preview.addEventListener('pointercancel', finishRoi);
+preview.addEventListener('lostpointercapture', finishRoi);
 preview.addEventListener('keydown', event => {
-  if (!session.active || !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+  const resize = ['+', '=', '-', '_'].includes(event.key);
+  if (!playbackStarted || drag || event.ctrlKey || event.metaKey || event.altKey ||
+    (!resize && !['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key))) return;
   event.preventDefault();
+  if (resize) {
+    const centerX = roi.x + roi.width / 2, centerY = roi.y + roi.height / 2;
+    const desired = ['+', '='].includes(event.key) ? 1.12 : 1 / 1.12;
+    const factor = Math.min(1 / roi.width, 1 / roi.height,
+      Math.max(.03 / roi.width, .03 / roi.height, desired));
+    roi.width *= factor; roi.height *= factor;
+    roi.x = Math.min(1 - roi.width, Math.max(0, centerX - roi.width / 2));
+    roi.y = Math.min(1 - roi.height, Math.max(0, centerY - roi.height / 2));
+    clearProcessing();
+    return;
+  }
   const step = event.shiftKey ? .04 : .01;
   const x = roi.x + (event.key === 'ArrowRight' ? step : event.key === 'ArrowLeft' ? -step : 0);
   const y = roi.y + (event.key === 'ArrowDown' ? step : event.key === 'ArrowUp' ? -step : 0);
@@ -291,17 +331,18 @@ window.addEventListener('localechange', () => {
   drawSpectrum(element('spectrum-chart'), analyzer?.spectrum() || [], lastResult[0]);
 });
 setInterval(() => {
-  if (session.active && source !== 'Demo' && !stalled && performance.now() - lastFrameWall > 1500) {
+  if (session.active && playbackStarted && source !== 'Demo' && !stalled && performance.now() - lastFrameWall > 1500) {
     clearProcessing();
     stalled = true;
     status('runtime.stalled');
   }
 }, 500);
-window.addEventListener('pagehide', () => stop({ announce: false }));
+window.addEventListener('pagehide', () => stop());
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && session.active) stop();
 });
 
+presentation = initPresentation();
 applyLocale(); controls(); idleFrame();
 status('runtime.loading');
 try {
