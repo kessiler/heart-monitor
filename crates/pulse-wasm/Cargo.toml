@@ -1,0 +1,16 @@
+[package]
+name = "pulse-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Browser bindings for the Heart Monitor experimental Rust core"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pulse-core = { path = "../pulse-core" }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "=0.2.129"

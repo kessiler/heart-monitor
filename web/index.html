@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#2049c8" />
+    <meta name="description" content="Uma pesquisa sobre pulso e vídeo, revisitada. Conheça o TCC de Kessiler Rodrigues e experimente uma implementação em Rust que roda no seu navegador." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Heart Monitor — a pesquisa revisitada" />
+    <meta property="og:description" content="Da pesquisa de 2015 a uma demonstração aberta em Rust. Um pequeno sinal de cor, uma história para revisitar." />
+    <meta property="og:image" content="https://kessiler.github.io/heart-monitor/social-preview.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Heart Monitor — a pesquisa revisitada</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#experiment" data-i18n="nav.skip">Pular para a demonstração</a>
+    <header class="site-header page-width">
+      <a class="brand" href="#" data-i18n-aria-label="nav.home" aria-label="Heart Monitor, início">
+        <svg viewBox="0 0 34 34" width="34" height="34" aria-hidden="true"><circle cx="17" cy="17" r="14" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="17" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1 17h9m14 0h9M17 1v9m0 14v9" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="17" r="2.5" fill="#cf3151"/></svg>
+        <span>Heart Monitor<span class="brand-caption" data-i18n="nav.brandCaption">A pesquisa revisitada</span></span>
+      </a>
+      <nav class="main-nav" data-i18n-aria-label="nav.main" aria-label="Navegação principal">
+        <a href="#research" data-i18n="nav.research">A pesquisa</a>
+        <a href="#experiment" data-i18n="nav.experiment">Experimente</a>
+        <a href="https://github.com/kessiler/heart-monitor" target="_blank" rel="noopener noreferrer">GitHub<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></a>
+      </nav>
+      <button class="locale-toggle" id="locale-toggle" type="button" data-i18n-aria-label="nav.languageLabel" aria-label="Switch to English"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.2"/><ellipse cx="10" cy="10" rx="3.5" ry="8" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M2 10h16" stroke="currentColor" stroke-width="1.2"/></svg><span data-i18n="nav.language">English</span></button>
+    </header>
+
+    <main>
+      <section class="hero page-width" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <div class="research-note"><span class="note-dot" aria-hidden="true"></span><span data-i18n="hero.note">Um TCC de 2015. Uma nova perspectiva em 2026.</span></div>
+          <h1 id="hero-title" data-i18n="hero.title">O pulso,<br />à luz do vídeo.</h1>
+          <p class="hero-description" data-i18n="hero.description">Variações quase invisíveis na cor da pele podem revelar um sinal de pulso. Este projeto revisita minha pesquisa da faculdade, agora em Rust, direto no navegador.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#experiment"><span data-i18n="hero.cta">Experimentar agora</span><svg viewBox="0 0 20 20" width="19" height="19" aria-hidden="true"><path d="M10 3v13m-5-5 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a>
+            <a class="text-link" href="https://revistas.unibh.br/dcet/article/view/1666" target="_blank" rel="noopener noreferrer"><span data-i18n="hero.article">Ler o artigo original</span><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></a>
+          </div>
+          <p class="hero-local"><svg viewBox="0 0 18 18" width="16" height="16" aria-hidden="true"><rect x="3" y="7" width="12" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span data-i18n="hero.local">Seu vídeo fica no seu dispositivo.</span></p>
+        </div>
+
+        <figure class="optical-figure" aria-labelledby="optical-caption">
+          <svg class="optical-illustration" viewBox="0 0 550 530" role="img" aria-labelledby="optical-title optical-description">
+            <title id="optical-title" data-i18n="hero.visualTitle">Do vídeo a um sinal de cor</title>
+            <desc id="optical-description" data-i18n="hero.visualDescription">Ilustração de uma região selecionada na testa. Amostras dessa região formam uma onda de variação da cor ao longo do tempo.</desc>
+            <defs>
+              <pattern id="optical-grid" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0v28" fill="none" stroke="#dce5f1" stroke-width=".6"/></pattern>
+              <linearGradient id="skin-light" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#d6e2f4"/><stop offset="1" stop-color="#afc7e9"/></linearGradient>
+              <clipPath id="frame-clip"><rect x="43" y="47" width="345" height="337" rx="5"/></clipPath>
+            </defs>
+            <rect x="14" y="14" width="522" height="502" fill="url(#optical-grid)"/>
+            <circle cx="214" cy="212" r="188" fill="none" stroke="#d2dff0"/>
+            <circle cx="214" cy="212" r="158" fill="none" stroke="#d2dff0"/>
+            <path d="M214 14v35M14 212h30M214 374v28M386 212h34" stroke="#2049c8" stroke-width="1"/>
+            <rect x="43" y="47" width="345" height="337" rx="5" fill="#f0f5fb" stroke="#a9bedb" stroke-width="1.2"/>
+            <g clip-path="url(#frame-clip)">
+              <path d="M83 387c11-66 42-88 84-99h96c48 11 79 41 87 99" fill="#2049c8"/>
+              <path d="M174 265v40c21 20 61 20 82 0v-40" fill="#a5bfdf"/>
+              <ellipse cx="215" cy="184" rx="73" ry="104" fill="url(#skin-light)"/>
+              <path d="M141 169c-9-76 44-108 82-106 53 3 81 55 69 110-8-47-22-49-25-79-20 34-68 46-110 42-8 11-12 23-16 33Z" fill="#10234a"/>
+              <path d="M155 189c8-6 20-6 29-2m61 0c8-4 19-4 29 2" fill="none" stroke="#5a78a1" stroke-width="2.2" stroke-linecap="round"/>
+              <path d="m215 197-6 25 13 1m-23 29c9 4 22 4 32-1" fill="none" stroke="#7898bf" stroke-width="1.7" stroke-linecap="round"/>
+              <rect x="177" y="145" width="74" height="28" fill="#cf3151" fill-opacity=".09" stroke="#cf3151" stroke-width="1.5"/>
+              <path d="M172 140h10m-10 0v10m84-10h-10m10 0v10m-84 28h10m-10 0v-10m84 10h-10m10 0v-10" fill="none" stroke="#cf3151" stroke-width="2"/>
+            </g>
+            <path d="M47 71V51h20m301 0h16v20M47 359v20h20m301 0h16v-20" fill="none" stroke="#2049c8" stroke-width="2"/>
+            <path d="M257 159h167v79" fill="none" stroke="#cf3151" stroke-width="1.2" stroke-dasharray="4 4"/>
+            <circle cx="424" cy="159" r="4" fill="#cf3151"/>
+            <rect x="327" y="241" width="207" height="132" rx="5" fill="#fff" stroke="#c2d1e7"/>
+            <path d="M343 275h174m-174 34h174m-174 34h174M372 260v96m38-96v96m38-96v96m38-96v96" stroke="#edf1f7"/>
+            <path d="M343 311c9 0 13-27 22-27s13 50 22 50 14-49 23-49 13 48 22 48 13-46 22-46 14 44 23 44 14-39 22-39 12 26 18 25" fill="none" stroke="#cf3151" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M59 421h369m-369-5v10m123-10v10m123-10v10m123-10v10" stroke="#a9bedb"/>
+            <rect x="63" y="451" width="36" height="17" fill="#c8ddcf"/><rect x="105" y="451" width="36" height="17" fill="#bdd4c8"/><rect x="147" y="451" width="36" height="17" fill="#b4cdbf"/><rect x="189" y="451" width="36" height="17" fill="#bbd2c5"/><rect x="231" y="451" width="36" height="17" fill="#c8ddcf"/><rect x="273" y="451" width="36" height="17" fill="#bdd4c8"/><rect x="315" y="451" width="36" height="17" fill="#b4cdbf"/><rect x="357" y="451" width="36" height="17" fill="#bbd2c5"/>
+            <text x="62" y="493" fill="#617796" font-family="sans-serif" font-size="11" data-i18n="hero.visualSample">Amostras de cor ao longo do tempo</text>
+          </svg>
+          <figcaption id="optical-caption"><span class="figure-index" aria-hidden="true">Fig. 01</span><span data-i18n="hero.visualCaption">Um pequeno sinal escondido em cada quadro.</span></figcaption>
+        </figure>
+      </section>
+
+      <div class="provenance-band">
+        <div class="page-width provenance-content">
+          <span data-i18n="provenance.context">Uma ideia que atravessa o tempo</span>
+          <div><span class="provenance-year">2012</span><span data-i18n="provenance.mit">Pesquisa do MIT</span></div>
+          <div><span class="provenance-year">2015</span><span data-i18n="provenance.tcc">Meu TCC no UniBH</span></div>
+          <div><span class="provenance-year">2026</span><span data-i18n="provenance.now">Código aberto em Rust</span></div>
+        </div>
+      </div>
+
+      <section class="research-section page-width" id="research" aria-labelledby="research-title">
+        <div class="section-heading"><p class="section-context" data-i18n="research.context">De onde veio tudo isso</p><h2 id="research-title" data-i18n="research.title">Uma câmera.<br />Um sinal quase invisível.</h2></div>
+        <div class="research-copy"><p data-i18n="research.description">A circulação sanguínea provoca pequenas variações na luz refletida pela pele. Ao observar uma região do vídeo ao longo do tempo, podemos buscar uma componente periódica relacionada ao pulso.</p><p data-i18n="research.inspiration">Em 2015, no UniBH, explorei essa ideia a partir da Magnificação Euleriana de Vídeo, apresentada por pesquisadores do MIT em 2012. O trabalho virou um artigo na revista e-xacta em 2016.</p><a class="text-link" href="https://people.csail.mit.edu/mrub/evm/" target="_blank" rel="noopener noreferrer"><span data-i18n="research.mitLink">Conhecer a pesquisa do MIT</span><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></a></div>
+        <div class="process-strip" aria-label="Processo" data-i18n-aria-label="research.processLabel">
+          <div class="process-step"><span class="process-number">01</span><svg viewBox="0 0 48 38" width="48" height="38" aria-hidden="true"><rect x="3" y="5" width="42" height="28" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="24" cy="19" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M19 5V2h10v3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><h3 data-i18n="research.step1">Observar</h3><p data-i18n="research.step1Body">Escolher uma pequena região da testa.</p></div>
+          <div class="process-step"><span class="process-number">02</span><svg viewBox="0 0 48 38" width="48" height="38" aria-hidden="true"><rect x="4" y="6" width="11" height="26" fill="#bfd7cd"/><rect x="19" y="6" width="11" height="26" fill="#adc8ba"/><rect x="34" y="6" width="11" height="26" fill="#bfd7cd"/><path d="M2 36h45" stroke="currentColor" stroke-width="1.6"/></svg><h3 data-i18n="research.step2">Extrair</h3><p data-i18n="research.step2Body">Acompanhar a média de cor de cada quadro.</p></div>
+          <div class="process-step"><span class="process-number">03</span><svg viewBox="0 0 48 38" width="48" height="38" aria-hidden="true"><path d="M2 20c5 0 6-12 11-12s6 22 11 22S30 8 35 8s6 12 11 12" fill="none" stroke="#cf3151" stroke-width="1.8"/><path d="M2 36h44" stroke="currentColor" stroke-width="1.6"/></svg><h3 data-i18n="research.step3">Analisar</h3><p data-i18n="research.step3Body">Buscar periodicidade e estimar a frequência.</p></div>
+        </div>
+      </section>
+
+      <section class="experiment-section" id="experiment" aria-labelledby="experiment-title">
+        <div class="page-width">
+          <div class="experiment-heading"><div><p class="section-context" data-i18n="experiment.context">O experimento, no seu navegador</p><h2 id="experiment-title" data-i18n="experiment.title">Veja o sinal aparecer.</h2></div><p data-i18n="experiment.intro">Comece com o sinal sintético para conhecer a interface. Depois, experimente sua câmera ou um vídeo local.</p></div>
+          <div class="lab-panel">
+            <div class="source-toolbar" role="group" data-i18n-aria-label="experiment.sourceGroup" aria-label="Escolher origem do vídeo">
+              <button class="button button-primary" id="start-camera" type="button"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="2" y="5" width="11" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m13 8 5-3v10l-5-3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span data-i18n="experiment.camera">Usar câmera</span></button>
+              <button class="button button-secondary" id="start-demo" type="button"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="m7 4 9 6-9 6V4Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span data-i18n="experiment.synthetic">Sinal sintético · 72 bpm</span></button>
+              <label class="button button-secondary upload-label" for="video-file"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 13v4h14v-4M10 14V3m-4 4 4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span data-i18n="experiment.upload">Abrir vídeo</span><input class="visually-hidden" id="video-file" type="file" accept="video/*" data-i18n-aria-label="experiment.uploadLabel" aria-label="Abrir arquivo de vídeo local" /></label>
+              <button class="button button-quiet" id="stop" type="button" disabled><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="5" y="5" width="10" height="10" rx="1" fill="currentColor"/></svg><span data-i18n="experiment.stop">Parar</span></button>
+            </div>
+            <div class="lab-body">
+              <div class="capture-column">
+                <div class="capture-heading"><span class="source-badge"><span class="source-dot" aria-hidden="true"></span><span id="source-label" data-i18n="source.none">Nenhuma origem ativa</span></span><span class="local-badge"><svg viewBox="0 0 18 18" width="13" height="13" aria-hidden="true"><rect x="3" y="7" width="12" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span data-i18n="experiment.local">Processamento local</span></span></div>
+                <div class="capture-stage">
+                  <video id="video" playsinline muted hidden aria-hidden="true"></video>
+                  <canvas id="preview" width="960" height="540" tabindex="0" data-i18n-aria-label="experiment.previewLabel" aria-label="Prévia do vídeo. Clique ou toque na testa para posicionar a região de análise. Arraste para ajustar o tamanho ou use as setas do teclado para mover."></canvas>
+                  <div class="capture-placeholder" id="capture-placeholder"><svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><path d="M15 6H6v9m27-9h9v9M6 33v9h9m27-9v9h-9" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="24" cy="21" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 38c0-8 5-12 12-12s12 4 12 12" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><strong data-i18n="experiment.emptyTitle">Todo sinal começa com um vídeo.</strong><span data-i18n="experiment.emptyBody">Escolha uma origem acima para começar.</span></div>
+                </div>
+                <div class="roi-help"><p><span class="selection-icon" aria-hidden="true"></span><span data-i18n="experiment.roiHelp">Clique na testa, arraste para ajustar ou use as setas do teclado.</span></p><button id="roi-reset" class="text-button" type="button" data-i18n="experiment.reset">Restaurar região</button></div>
+                <p class="synthetic-note" data-i18n="runtime.syntheticNote">Simulação de 72 bpm. Este sinal é gerado pelo projeto e não representa uma medição de uma pessoa.</p>
+              </div>
+              <aside class="measurement-column" data-i18n-aria-label="experiment.measurementLabel" aria-label="Resultados da análise">
+                <div class="bpm-output"><span class="output-label" data-i18n="experiment.estimate">Frequência estimada</span><div class="bpm-number"><output id="bpm" aria-live="off">—</output><span>bpm</span></div><span class="bpm-description" data-i18n="experiment.bpmDescription">Batimentos por minuto</span></div>
+                <div class="quality-output"><span data-i18n="experiment.quality">Periodicidade do sinal</span><strong id="quality" data-i18n="quality.waiting">Aguardando</strong></div>
+                <div class="warmup"><label for="progress" data-i18n="experiment.window">Janela de análise</label><progress id="progress" max="1" value="0" data-i18n-aria-label="experiment.progressLabel" aria-label="Preenchimento da janela de análise de 12 segundos"></progress><p id="status" role="status" aria-live="polite" data-i18n="status.ready">Escolha uma origem para iniciar a análise.</p></div>
+                <div class="amplified-preview"><div class="amplified-heading"><span data-i18n="experiment.amplified">Variação de cor ampliada</span><span class="visual-only" data-i18n="experiment.visualOnly">Visualização</span></div><canvas id="amplified" width="256" height="160" data-i18n-aria-label="experiment.amplifiedLabel" aria-label="Visualização ampliada das variações de cor na região selecionada"></canvas><div class="gain-control"><label for="gain" data-i18n="experiment.gain">Amplificação</label><output id="gain-value" for="gain">20×</output><input id="gain" type="range" min="0" max="80" step="1" value="20" data-i18n-aria-label="experiment.gainLabel" aria-label="Intensidade da amplificação visual" /></div></div>
+              </aside>
+            </div>
+            <div class="chart-grid">
+              <figure class="chart-figure"><figcaption><strong data-i18n="experiment.signal">Sinal ao longo do tempo</strong><span data-i18n="experiment.signalDetail">Variação relativa da cor</span></figcaption><canvas id="signal-chart" width="900" height="240" role="img" data-i18n-aria-label="experiment.signalLabel" aria-label="Gráfico do sinal de cor na janela de análise"></canvas></figure>
+              <figure class="chart-figure"><figcaption><strong data-i18n="experiment.spectrum">Frequências do sinal</strong><span data-i18n="experiment.spectrumDetail">Faixa de 42 a 180 bpm</span></figcaption><canvas id="spectrum-chart" width="900" height="240" role="img" data-i18n-aria-label="experiment.spectrumLabel" aria-label="Gráfico do espectro do sinal, de 42 a 180 batimentos por minuto"></canvas></figure>
+            </div>
+            <div class="lab-footer"><svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true"><circle cx="9" cy="9" r="7" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M9 8v5M9 5v1" stroke="currentColor" stroke-width="1.5"/></svg><p data-i18n="experiment.disclaimer">Demonstração experimental. A estimativa e o indicador de periodicidade não representam validação clínica. Não use para decisões de saúde.</p></div>
+          </div>
+          <div class="experiment-guidance">
+            <div><h3 data-i18n="guidance.title">Para observar melhor</h3><p data-i18n="guidance.body">Use iluminação estável, mantenha o rosto parado e posicione a região sobre a testa. Aguarde a janela de 12 segundos. Movimento, sombras e compressão podem dominar o sinal.</p></div>
+            <div><h3 data-i18n="privacy.title">Privacidade desde o primeiro quadro</h3><p data-i18n="privacy.body">A análise acontece no seu dispositivo. O projeto não envia vídeo, não usa analytics e não exige cadastro. Só a preferência de idioma é salva no navegador.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="story-section page-width" aria-labelledby="story-title">
+        <div class="story-intro"><p class="section-context" data-i18n="story.context">Uma pesquisa, dois momentos</p><h2 id="story-title" data-i18n="story.title">Reviver também<br />é reconstruir.</h2><p data-i18n="story.intro">O código mudou. A curiosidade continua a mesma: encontrar algo que os olhos, sozinhos, não conseguem ver.</p></div>
+        <ol class="timeline">
+          <li><span class="timeline-year">2015</span><div><h3 data-i18n="story.tccTitle">O trabalho de conclusão de curso</h3><p data-i18n="story.tccBody">Pesquisa desenvolvida por Kessiler Almeida Silveira Rodrigues no UniBH, com Moisés Henrique Ramos Pereira e Flávio Luis Cardeal Pádua. A primeira implementação foi feita em C++.</p></div></li>
+          <li><span class="timeline-year">2016</span><div><h3 data-i18n="story.articleTitle">A pesquisa publicada</h3><p data-i18n="story.articleBody">O artigo foi publicado em 31 de maio de 2016, na e-xacta, volume 9, número 1, páginas 49–62. O estudo histórico incluiu 20 medições em quatro pessoas, sob iluminação controlada.</p><a class="text-link" href="https://doi.org/10.18674/exacta.v9i1.1666" target="_blank" rel="noopener noreferrer">DOI: 10.18674/exacta.v9i1.1666<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></a></div></li>
+          <li><span class="timeline-year">2026</span><div><h3 data-i18n="story.rebuildTitle">Uma nova implementação aberta</h3><p data-i18n="story.rebuildBody">Um núcleo em Rust, compartilhado pela web e pelo desktop. Esta é uma adaptação independente da ideia, com seleção manual da região, sinal e espectro visíveis. Os resultados de 2016 não validam esta versão.</p></div></li>
+        </ol>
+      </section>
+
+      <section class="open-section page-width" aria-labelledby="open-title">
+        <div class="open-mark" aria-hidden="true"><svg viewBox="0 0 100 100" width="88" height="88"><path d="m36 25-25 25 25 25m28-50 25 25-25 25M57 16 43 84" fill="none" stroke="currentColor" stroke-width="3"/></svg></div><div class="open-copy"><h2 id="open-title" data-i18n="open.title">Aberto para a próxima ideia.</h2><p data-i18n="open.body">Explore o código, entenda o processamento ou contribua com novos experimentos. A nova implementação tem licença MIT; o código histórico e as dependências mantêm seus próprios avisos.</p></div><a class="button button-primary" href="https://github.com/kessiler/heart-monitor" target="_blank" rel="noopener noreferrer"><span data-i18n="open.cta">Explorar no GitHub</span><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></a>
+      </section>
+    </main>
+
+    <footer class="site-footer page-width"><div><a class="footer-brand" href="#">Heart Monitor</a><p data-i18n="footer.author">Uma pesquisa de Kessiler Rodrigues, revisitada em 2026.</p></div><div class="footer-links"><a href="https://revistas.unibh.br/dcet/article/view/1666" target="_blank" rel="noopener noreferrer" data-i18n="footer.article">Artigo original</a><a href="https://people.csail.mit.edu/mrub/evm/" target="_blank" rel="noopener noreferrer" data-i18n="footer.mit">Referência do MIT</a><a href="https://github.com/kessiler/heart-monitor" target="_blank" rel="noopener noreferrer" data-i18n="footer.code">Código e licenças</a></div><p class="footer-note" data-i18n="footer.note">Feito para aprender, experimentar e compartilhar.</p></footer>
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
