@@ -1,6 +1,6 @@
 [package]
 name = "heart-monitor-desktop"
-version = "2.0.1"
+version = "2.1.0"
 description = "Local, experimental video pulse demonstration"
 authors = ["Kessiler Rodrigues"]
 edition = "2021"

@@ -115,8 +115,10 @@ impl PulseAnalyzer {
         {
             return result;
         }
-        // Bound spectral work even if callers supply unusually fast frames.
-        let count = (result.duration * result.sample_rate.min(120.0)).floor() as usize + 1;
+        // Preserve the input cadence: reducing it without a lowpass filter would
+        // alias high-frequency variations into the pulse band. MAX_SAMPLES
+        // already bounds this uniform grid and the spectral work to 4096 values.
+        let count = samples.len();
         if count < 3 {
             return result;
         }
