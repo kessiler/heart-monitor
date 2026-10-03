@@ -20,6 +20,17 @@ fn allowed_reference(url: &tauri::Url) -> bool {
         )
 }
 
+fn open_reference(url: &tauri::Url) -> bool {
+    if !allowed_reference(url) {
+        return false;
+    }
+    // Use only the native Rust API; no opener IPC permissions are granted.
+    if tauri_plugin_opener::open_url(url.as_str(), None::<&str>).is_err() {
+        eprintln!("could not open the reference in the system browser");
+    }
+    true
+}
+
 fn main() {
     // The frontend uses the same pulse-core algorithm through its bundled Wasm.
     // No Rust commands, filesystem access, or remote services are exposed.
@@ -27,6 +38,11 @@ fn main() {
         .setup(|app| {
             let window = WebviewWindowBuilder::from_config(app, &app.config().app.windows[0])?
                 .on_navigation(|url| {
+                    // WebKit consults navigation policy before its new-window callback.
+                    // Cancel after opening externally so that the reference opens once.
+                    if open_reference(url) {
+                        return false;
+                    }
                     let bundled = (url.scheme() == "tauri" && url.host_str() == Some("localhost"))
                         || (url.scheme() == "https" && url.host_str() == Some("tauri.localhost"));
                     let development = cfg!(debug_assertions)
@@ -36,13 +52,7 @@ fn main() {
                     bundled || development
                 })
                 .on_new_window(|url, _| {
-                    if !allowed_reference(&url) {
-                        return NewWindowResponse::Deny;
-                    }
-                    // Use only the native Rust API; no opener IPC permissions are granted.
-                    if tauri_plugin_opener::open_url(url.as_str(), None::<&str>).is_err() {
-                        eprintln!("could not open the reference in the system browser");
-                    }
+                    open_reference(&url);
                     NewWindowResponse::Deny
                 })
                 .on_permission_request(|_, permission| match permission {
