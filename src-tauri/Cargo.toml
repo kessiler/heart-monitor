@@ -13,7 +13,7 @@ tauri-build = { version = "=2.7.1", features = [] }
 
 [dependencies]
 tauri = { version = "=2.12.1", features = [] }
-tauri-plugin-opener = "=2.7.0"
+tauri-plugin-opener = "=2.7.2"
 pulse-core = { path = "../crates/pulse-core" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
